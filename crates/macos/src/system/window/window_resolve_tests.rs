@@ -214,7 +214,7 @@ fn a_window_without_an_accessibility_element_is_not_reported_as_missing() {
 
 #[test]
 fn exact_window_rejects_another_native_id_with_the_same_title() {
-    let candidates = [(Some(4321), "Elle Reader Fixture")];
+    let candidates = [(Some(4321), "Window Fixture")];
     let result = select_window_for_number(&candidates, 4320, |candidate| Ok(candidate.0)).unwrap();
 
     assert_eq!(result, None);
@@ -222,7 +222,7 @@ fn exact_window_rejects_another_native_id_with_the_same_title() {
 
 #[test]
 fn exact_window_rejects_unproven_id_even_with_a_unique_title() {
-    let candidates = [(None, "Elle Reader Fixture")];
+    let candidates = [(None, "Window Fixture")];
     let result = select_window_for_number(&candidates, 4320, |candidate| Ok(candidate.0)).unwrap();
 
     assert_eq!(result, None);

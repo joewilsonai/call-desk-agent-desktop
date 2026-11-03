@@ -10,8 +10,8 @@
 <p align="center">
   <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-238636?style=flat-square" /></a>
   <img alt="macOS ARM64 tested" src="https://img.shields.io/badge/fork_target-macOS_ARM64-111827?style=flat-square" />
-  <img alt="2528 host library tests passed locally" src="https://img.shields.io/badge/local_host_tests-2528_passed-238636?style=flat-square" />
-  <img alt="Pinned upstream version 1.0.2" src="https://img.shields.io/badge/upstream_base-1.0.2-1f6feb?style=flat-square" />
+  <img alt="2528 host library tests passed for the pinned release" src="https://img.shields.io/badge/pinned_release_tests-2528_passed-238636?style=flat-square" />
+  <img alt="Upstream main synchronized at 31b757a9" src="https://img.shields.io/badge/upstream_main-31b757a9-1f6feb?style=flat-square" />
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 
 **This is Joe Wilson's Call Desk source fork of [Vercel Labs' agent-desktop](https://github.com/vercel-labs/agent-desktop).** It adds the macOS window-discovery and exact-window identity repairs used by [Shared Call Desk](https://github.com/joewilsonai/shared-call-desk). Upstream authorship, history, and the [Apache-2.0 license](LICENSE) are preserved.
 
-The fork is pinned to upstream commit [`5261b528`](https://github.com/vercel-labs/agent-desktop/commit/5261b5287b5208e7c4bf3713df6f66faaaf2c4cc). Its custom source revision identifies the build. The upstream npm package and a matching CLI version string do not establish that these modifications are installed.
+Source on `main` incorporates upstream commit [`31b757a9`](https://github.com/vercel-labs/agent-desktop/commit/31b757a990a1189c9df8128df10e8df2ee5e15e1) and retains our window repairs. The installation examples remain pinned to the earlier `call-desk-macos-2026-11-02` release; updating source does not upgrade an installed tool. The exact source revision identifies each build. The upstream npm package and a matching CLI version string do not establish that these modifications are installed.
 
 ## Why this fork exists
 
@@ -44,6 +44,14 @@ This fork changes how the macOS adapter discovers and resolves those windows:
 These are focused native-window repairs. They do not make every app accessible, remove permission requirements, or solve browser focus and macOS Spaces behavior.
 
 See [fork provenance and installation](FORK.md) for the exact base, changes, and build procedure.
+
+## Upstream changes on main
+
+The synchronized source adds cross-process accessibility tokens for exact element re-identification and removes the old macOS background command host. It also supports the Dock, menu bar status items, windowless apps, and system panels such as Control Center. These changes come from upstream; the fork retains its native-window discovery and exact-ID repairs.
+
+A windowless snapshot or system-surface result can omit `data.window`. Consumers must check for it, and a process root must not substitute for an explicitly enrolled native window. The JSON envelope is 2.6. Take fresh snapshots when moving to this implementation.
+
+**Upgrade behavior:** running the new CLI, even for a version query, stops matching legacy agent-desktop command hosts. Coordinate a cutover before executing a new build alongside agents using an older installation. Source synchronization does not establish live Call Desk compatibility; the pinned release stays available until desktop and integration checks qualify a replacement.
 
 ## What agent-desktop does
 
@@ -73,7 +81,7 @@ git clone https://github.com/joewilsonai/call-desk-agent-desktop.git
 cd call-desk-agent-desktop
 git checkout --detach call-desk-macos-2026-11-02
 
-env -u AGENT_DESKTOP_HOME cargo test --locked \
+scripts/cargo-test-isolated-home.sh test --locked \
   -p agent-desktop-core -p agent-desktop-macos -p agent-desktop -p agent-desktop-ffi --lib
 
 env -u AGENT_DESKTOP_HOME cargo build --release --locked -p agent-desktop
@@ -158,7 +166,7 @@ Headless semantic actions are the default. `--headed` permits foreground activat
 
 ## Validation and boundaries
 
-The fork's macOS validation includes **2,528 host library tests**, source rules, architecture boundaries, formatting, and Clippy. The release validation file states which build and smoke checks completed. The test badge represents local checks, not hosted CI or a guarantee of unattended operation.
+The pinned release's macOS validation includes **2,528 host library tests**, source rules, architecture boundaries, formatting, and Clippy. These historical results describe that release, not subsequent source on `main`. The release validation file states which build and smoke checks completed. The test badge represents local checks, not hosted CI or a guarantee of unattended operation.
 
 The original patch also passed exact-window fixture checks before publication. Known limits remain:
 
@@ -174,7 +182,7 @@ Desktop trees, screenshots, clipboard data, and logs can contain private content
 
 ## C interface and upstream documentation
 
-The upstream C interface remains available. The ABI major is 6; consumers should check the installed library against the header's `AD_ABI_VERSION_MAJOR`. See the [FFI skill](skills/agent-desktop-ffi/SKILL.md) and [generated header](crates/ffi/include/agent_desktop.h).
+The upstream C interface remains available. The ABI major is 7 on `main`; the older pinned release carries its matching earlier ABI. Consumers should check the installed library against the header's `AD_ABI_VERSION_MAJOR`. See the [FFI skill](skills/agent-desktop-ffi/SKILL.md) and [generated header](crates/ffi/include/agent_desktop.h).
 
 - [Command and JSON contract](docs/json-output.md)
 - [Upstream installation and permissions reference](docs/install.md)
