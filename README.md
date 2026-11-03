@@ -168,6 +168,8 @@ Headless semantic actions are the default. `--headed` permits foreground activat
 
 The pinned release's macOS validation includes **2,528 host library tests**, source rules, architecture boundaries, formatting, and Clippy. These historical results describe that release, not subsequent source on `main`. The release validation file states which build and smoke checks completed. The test badge represents local checks, not hosted CI or a guarantee of unattended operation.
 
+The synchronized source passed **2,592 host library tests**, 8 FFI stub passthrough tests, 3 documentation contract tests, formatting, Clippy, and the source/architecture guards on macOS ARM64. Four synthetic locator scenarios retained correct live-path results. Native desktop E2E and latency qualification remain pending; synthetic timings under concurrent workloads do not establish native performance. The header-generation drift check was skipped because cbindgen was unavailable locally; the committed header is unchanged from the synchronized upstream revision.
+
 The original patch also passed exact-window fixture checks before publication. Known limits remain:
 
 | Limit | Practical effect |
