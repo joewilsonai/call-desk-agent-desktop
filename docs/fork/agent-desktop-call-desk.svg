@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="310" viewBox="0 0 1200 310" role="img" aria-labelledby="title desc">
+<title id="title">agent-desktop: Call Desk fork</title><desc id="desc">Native app control with explicit window identity. A target reticle surrounds one of two app windows.</desc>
+<rect width="1200" height="310" rx="20" fill="#0d1117"/><rect x="1" y="1" width="1198" height="308" rx="19" fill="none" stroke="#30363d" stroke-width="2"/>
+<text x="64" y="74" fill="#58a6ff" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="650" font-size="15" letter-spacing="3">CALL DESK FORK</text>
+<text x="60" y="157" fill="#f0f6fc" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="750" font-size="68" letter-spacing="-2">agent-desktop</text>
+<text x="64" y="205" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="24">Exact windows. Explicit results.</text>
+<text x="64" y="263" fill="#8b949e" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="15">macOS window discovery + strict native-ID targeting</text>
+<g fill="#161b22" stroke-width="2"><rect x="832" y="70" width="245" height="145" rx="9" stroke="#30363d"/><path d="M833 99h243" stroke="#30363d"/><rect x="790" y="115" width="245" height="145" rx="9" stroke="#58a6ff"/><path d="M791 145h243" stroke="#58a6ff"/></g>
+<g fill="#8b949e"><circle cx="807" cy="130" r="3"/><circle cx="819" cy="130" r="3"/><circle cx="831" cy="130" r="3"/></g>
+<g stroke="#3fb950" stroke-width="3" fill="none"><path d="M775 150v-45h45M1005 105h45v45M1050 225v45h-45M820 270h-45v-45"/><circle cx="913" cy="201" r="23"/><path d="M913 167v17m0 34v17m-34-34h17m34 0h17"/></g>
+</svg>

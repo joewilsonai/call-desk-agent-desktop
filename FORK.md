@@ -24,6 +24,7 @@ git checkout --detach call-desk-macos-2026-11-02
 env -u AGENT_DESKTOP_HOME cargo test --locked \
   -p agent-desktop-core -p agent-desktop-macos -p agent-desktop -p agent-desktop-ffi --lib
 env -u AGENT_DESKTOP_HOME cargo build --release --locked -p agent-desktop
+env -u AGENT_DESKTOP_HOME cargo build --release --locked -p agent-desktop-macos --bin agent-desktop-macos-helper
 ./target/release/agent-desktop --version
 ```
 

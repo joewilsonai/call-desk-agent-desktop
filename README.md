@@ -1,191 +1,189 @@
-> **Call Desk fork:** this repository carries Joe Wilson's macOS window-discovery and exact-window identity fixes on a pinned upstream revision. See [fork installation and provenance](FORK.md). The npm package and standard upstream releases do not identify this fork build. Upstream project credit and the Apache-2.0 license are retained.
-
-# agent-desktop
-
-Computer use for AI agents: read and operate desktop apps through the OS accessibility tree.
-
-<p>
-  <a href="https://vercel.com/labs#labs-products"><img alt="Vercel Labs Product" src="https://img.shields.io/badge/LABS-PRODUCT-0a0a0a.svg?style=for-the-badge&amp;logo=Vercel&amp;labelColor=000000" height="28"></a>
-  <a href="https://www.npmjs.com/package/agent-desktop"><img alt="npm version: agent-desktop" src="https://img.shields.io/npm/v/agent-desktop.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
-  <a href="https://github.com/vercel-labs/agent-desktop/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/github/license/vercel-labs/agent-desktop.svg?style=for-the-badge&amp;labelColor=000000" height="28"></a>
-  <a href="https://www.npmjs.com/package/agent-desktop"><img alt="npm downloads per month: agent-desktop" src="https://img.shields.io/npm/dm/agent-desktop.svg?style=for-the-badge&amp;labelColor=000000&amp;label=npm%20downloads" height="28"></a>
+<p align="center">
+  <img src="docs/fork/agent-desktop-call-desk.svg" alt="agent-desktop: Call Desk fork" width="760" />
 </p>
 
-<p align="center"><video src="https://github.com/user-attachments/assets/9b2c9f8c-a49d-4b69-b6cf-11d9e0d40ceb" controls width="800"></video></p>
+<p align="center">
+  <strong>Give an agent a window to read, a control to act on, and evidence to check.</strong><br />
+  Native desktop control through the operating system's accessibility tree.
+</p>
 
-A CLI and C library for macOS, Windows and Linux. A snapshot returns JSON with a ref for every element an agent can act on. The agent acts on a ref and snapshots again to check, with no pixel matching; the loop stays in your agent.
+<p align="center">
+  <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-238636?style=flat-square" /></a>
+  <img alt="macOS ARM64 tested" src="https://img.shields.io/badge/fork_target-macOS_ARM64-111827?style=flat-square" />
+  <img alt="2528 host library tests passed locally" src="https://img.shields.io/badge/local_host_tests-2528_passed-238636?style=flat-square" />
+  <img alt="Pinned upstream version 1.0.2" src="https://img.shields.io/badge/upstream_base-1.0.2-1f6feb?style=flat-square" />
+</p>
 
-On macOS, CLI calls reuse a private command host for each snapshot namespace and binary build. It retains native accessibility objects so a removed row cannot silently resolve to a surviving row with the same identifier. The host exits after 15 idle minutes. `TMPDIR` must be owned by the current user with mode `0700`; the standard macOS per-user temporary directory satisfies this requirement. Headless calls still prohibit foreground activation and synthesized input.
+<p align="center">
+  <a href="#why-this-fork-exists">The fixes</a> ·
+  <a href="#install-this-fork">Install</a> ·
+  <a href="#point-your-agent-here">Agent instructions</a> ·
+  <a href="#the-observeactverify-loop">How it works</a> ·
+  <a href="#validation-and-boundaries">Validation</a>
+</p>
 
-Snapshots, clipboard reads, screenshots, command output and debug artifacts can contain private desktop content. Keep them out of public logs and uploads. The optional [JEV helper](skills/jev-desktop/SKILL.md) sends screen descriptions to a configured model provider; it is separate from the native CLI. See [privacy and data handling](docs/faq.md#what-data-can-contain-private-information).
+---
 
-## Installation
+**This is Joe Wilson's Call Desk source fork of [Vercel Labs' agent-desktop](https://github.com/vercel-labs/agent-desktop).** It adds the macOS window-discovery and exact-window identity repairs used by [Shared Call Desk](https://github.com/joewilsonai/shared-call-desk). Upstream authorship, history, and the [Apache-2.0 license](LICENSE) are preserved.
 
-Install on macOS, Windows or Linux with npm:
+The fork is pinned to upstream commit [`5261b528`](https://github.com/vercel-labs/agent-desktop/commit/5261b5287b5208e7c4bf3713df6f66faaaf2c4cc). Its custom source revision identifies the build. The upstream npm package and a matching CLI version string do not establish that these modifications are installed.
 
-```bash
-npm install -g agent-desktop
-agent-desktop version
+## Why this fork exists
+
+A window title is not a window identity. Two windows can share a title, and the accessibility API can expose the real window through several different attributes.
+
+This fork changes how the macOS adapter discovers and resolves those windows:
+
+| Situation | Fork behavior |
+| --- | --- |
+| A real window is missing from `AXWindows` | Also inspect `AXMainWindow`, `AXFocusedWindow`, and window references in `AXChildren`. |
+| An operation specifies a native window ID | Require one unique matching native window. |
+| A same-title window exists but its native ID differs | Do not use it as a fallback for the explicitly selected window. |
+| Permissions, identity, or controls cannot be verified | Retain an explicit failure or incomplete observation. |
+
+These are focused native-window repairs. They do not make every app accessible, remove permission requirements, or solve browser focus and macOS Spaces behavior.
+
+See [fork provenance and installation](FORK.md) for the exact base, changes, and build procedure.
+
+## What agent-desktop does
+
+- Read native app and window accessibility trees as structured JSON.
+- Give actionable elements snapshot-qualified references.
+- Click controls, enter text, scroll, operate windows, and inspect supported system surfaces.
+- Re-identify controls before acting and report stale or ambiguous targets.
+- Keep namespaces separate for concurrent agent tasks.
+- Carry version-matched usage instructions inside the binary.
+
+The observe-act loop stays in your agent. agent-desktop does not embed a language model. It has **60 command names, 56 operational commands** on macOS. Held-input commands `key-down`, `key-up`, `mouse-down`, and `mouse-up` fail closed on that platform.
+
+Upstream includes Windows and Linux implementations. This fork's modifications and local validation target macOS ARM64; they are not a new cross-platform qualification.
+
+## Install this fork
+
+### Requirements
+
+- macOS with a graphical login session.
+- Git, Rust 1.89+, and Xcode command-line tools for a source build.
+- Appropriate native permissions for the operations you intend to perform.
+
+### Build the versioned source
+
+```sh
+git clone https://github.com/joewilsonai/call-desk-agent-desktop.git
+cd call-desk-agent-desktop
+git checkout --detach call-desk-macos-2026-11-02
+
+env -u AGENT_DESKTOP_HOME cargo test --locked \
+  -p agent-desktop-core -p agent-desktop-macos -p agent-desktop -p agent-desktop-ffi --lib
+
+env -u AGENT_DESKTOP_HOME cargo build --release --locked -p agent-desktop
+env -u AGENT_DESKTOP_HOME cargo build --release --locked \
+  -p agent-desktop-macos --bin agent-desktop-macos-helper
+
+./target/release/agent-desktop --version
 ```
 
-Bun, Yarn and pnpm can install the same package. It includes native binaries and platform helpers for x64 and ARM64.
-For direct execution without a JavaScript launcher, download the matching native archive from
-[GitHub Releases](https://github.com/vercel-labs/agent-desktop/releases) and keep its helper beside the executable.
+Keep `agent-desktop-macos-helper` beside `agent-desktop` when installing the macOS binaries. Preserve an existing installation before changing command resolution. The [Call Desk dependency guide](https://github.com/joewilsonai/shared-call-desk/blob/main/third_party/agent-desktop/README.md) provides the versioned-directory and backup procedure.
 
-Official Homebrew and Scoop packages are being submitted; they are not yet available in the default catalogs.
-The repository no longer maintains a custom Homebrew tap or Scoop bucket.
+For a published archive, use the [fork's releases](https://github.com/joewilsonai/call-desk-agent-desktop/releases) and the validation/checksum files attached to that specific release. Available assets determine the supported download targets.
 
-- **macOS** needs Accessibility permission: `agent-desktop permissions --guide`.
-- **Windows** needs no grant for apps at your terminal's integrity level.
-- **Linux** needs the user's graphical session with `at-spi2-core`.
+### Inspect permissions
 
-See [installation and permissions](docs/install.md) for package-manager behavior, release archives, and building from source.
-
-## Quick start
-
-Observe, act on a ref, observe again. Any app name from `agent-desktop list-apps` works; Finder is the macOS example.
-Each command prints one JSON envelope; a trimmed snapshot follows the commands.
-
-```bash
-agent-desktop snapshot --app Finder -i      # interactive elements, each with a ref
-agent-desktop click @s8f3k2p9:e8            # act on a ref from that snapshot
-agent-desktop snapshot --app Finder -i      # observe again to verify
+```sh
+agent-desktop permissions
+agent-desktop permissions --guide
 ```
 
-```json
-{
-  "version": "2.5",
-  "ok": true,
-  "command": "snapshot",
-  "data": {
-    "app": "Finder",
-    "window": { "id": "w-204749", "title": "Downloads" },
-    "snapshot_id": "s8f3k2p9",
-    "ref_count": 59,
-    "complete": true,
-    "tree": {
-      "role": "window",
-      "name": "Downloads",
-      "children": [
-        { "role": "treeitem", "name": "Documents", "ref_id": "@s8f3k2p9:e8", "available_actions": ["Click"] }
-      ]
-    }
-  }
-}
+macOS Accessibility access is required for native controls. Screenshots can require Screen Recording permission. Follow the normal macOS workflow when a grant is needed; a build, version string, or settings entry alone is not evidence of effective access.
+
+## Point your agent here
+
+Give Claude, Codex, or another local coding agent this repository URL and paste:
+
+> Install the Call Desk fork of agent-desktop from https://github.com/joewilsonai/call-desk-agent-desktop. Read its README and FORK.md. Use the pinned fork release, preserve my existing native-control tools, build or install the matching CLI and macOS helper together, and verify the result. Read the binary's desktop and platform skills before operating apps. Report any missing build dependency or required native permission. Installation alone does not authorize messages, calls, or changes in other apps.
+
+After installation, the binary provides its own operating instructions:
+
+```sh
+agent-desktop skills get desktop
+agent-desktop skills get platform
+agent-desktop snapshot --help
 ```
 
-- **Refs belong to their snapshot.** A bare `@e8` is rejected with `INVALID_ARGS`. When the UI changes, an action
-  returns `STALE_REF` or `AMBIGUOUS_TARGET`: take a new snapshot and use its refs.
-- **Several windows** give `AMBIGUOUS_TARGET`; `snapshot` lists the candidate window ids in `error.details`. Pass one
-  with `--window-id`.
-- **Dense apps:** map first with `snapshot --skeleton --app Slack -i --compact`, then drill into one region with
-  `snapshot --root @s8f3k2p9:e3 -i --compact`.
-- **Headless by default.** Ref actions go through the accessibility API without moving the pointer or taking focus.
-  The global `--headed` flag allows physical input.
-- **PowerShell.** Quote every ref (`'@s8f3k2p9:e8'`), because a bare `@token` is the splatting operator.
+The [repository instructions](AGENTS.md) are for contributing to the code. The embedded skills are for agents operating the installed tool.
 
-## For AI agents
+## The observe-act-verify loop
 
-The binary carries its own docs, matched to its version:
-
-```bash
-agent-desktop skills get desktop      # the loop, refs, verification and retry rules
-agent-desktop skills get platform     # what differs on the OS you run on
-agent-desktop <command> --help        # flags for one command
+```mermaid
+flowchart LR
+    A["Observe a named app or exact window"] --> B["Inspect structured tree and current refs"]
+    B --> C["Act on a verified target"]
+    C --> D["Observe the actual result"]
+    D --> A
 ```
 
-Install the skill into an agent harness from [skills.sh](https://skills.sh/vercel-labs/agent-desktop/agent-desktop):
+An example starting observation:
 
-```bash
-npx skills add https://github.com/vercel-labs/agent-desktop --skill agent-desktop
+```sh
+agent-desktop --session my-task snapshot --app Finder -i
 ```
 
-Or add this to your `AGENTS.md`:
+If there are multiple candidate windows, select an actual native window ID returned by a fresh inventory. Inspect the snapshot, choose its current reference, then act. The following reference is illustrative; replace it with one from your own observation:
 
-```markdown
-Use `agent-desktop` to see and operate desktop apps. Before the first use, run
-`agent-desktop skills get desktop` and `agent-desktop skills get platform`, and follow them.
+```sh
+agent-desktop --session my-task click '@s8f3k2p9:e8'
+agent-desktop --session my-task snapshot --app Finder -i
 ```
 
-Every command prints one envelope with `ok` and either `data` or `error`. An error carries a `code`, a `disposition` and usually a `suggestion`; retry only when `error.disposition.retry` is `safe`. The contract, error codes and exit codes are in [docs/json-output.md](docs/json-output.md).
+A reference belongs to its snapshot and namespace. After a UI change or `STALE_REF`, take a new observation. Do not invent a reference or treat a stale one as permission to click a nearby control.
 
-## Commands
+### A receipt is not a postcondition
 
-It ships 60 command names, 56 operational commands. The other four (`key-down`, `key-up`, `mouse-down`, `mouse-up`) refuse to run until a daemon can release a held key or button.
+Read the JSON envelope and its evidence:
 
-| Group | Commands |
-|---|---|
-| Observe | `snapshot`, `find`, `get`, `is`, `screenshot`, `list-surfaces` |
-| Act on a ref | `click`, `double-click`, `triple-click`, `right-click`, `type`, `set-value`, `clear`, `focus`, `select`, `toggle`, `check`, `uncheck`, `expand`, `collapse`, `scroll`, `scroll-to` |
-| Keyboard and mouse | `press`, `hover`, `drag`, `mouse-move`, `mouse-click`, `mouse-wheel`, `key-down`, `key-up`, `mouse-down`, `mouse-up` |
-| Apps and windows | `launch`, `close-app`, `list-apps`, `list-windows`, `list-displays`, `focus-window`, `resize-window`, `move-window`, `minimize`, `maximize`, `restore`, `open-system-surface` |
-| Notifications | `list-notifications`, `dismiss-notification`, `dismiss-all-notifications`, `notification-action` |
-| Clipboard | `clipboard-get`, `clipboard-set`, `clipboard-clear` |
-| Wait | `wait` |
-| Sessions | `session`, `trace`, `cursor-overlay` |
-| System | `status`, `permissions`, `version`, `batch`, `skills` |
+- `ok` reports the command's result within the documented contract.
+- Delivery disposition distinguishes a dispatched action from an unperformed one.
+- Snapshot coverage distinguishes a complete tree from partial data.
+- A fresh observation establishes the visible postcondition.
 
-## Platform support
+A successful dispatch does not prove a text was delivered, a call was answered, or a settings change persisted.
 
-| | macOS | Windows | Linux |
-|---|:---:|:---:|:---:|
-| Accessibility tree | Yes | Yes | Yes (AT-SPI) |
-| Click / type / keyboard | Yes | Yes | AT-SPI; X11 / GNOME keys |
-| Mouse input | Yes | Yes | X11, `--headed` |
-| Screenshot | Yes | Yes | X11 windows; Wayland portal |
-| Clipboard | Yes | Yes | Yes; Wayland needs `wl-clipboard` |
-| App & window management | Yes | Yes | Launch/list; X11 window control |
-| Notifications | Yes | Yes | GNOME Shell |
-| Shell surfaces (`open-system-surface`) | Planned | Yes | GNOME tray, Action Center |
+## Agent sessions and concurrency
 
-The Windows surface and `launch` notes and the Linux X11 and Wayland notes are in [docs/install.md](docs/install.md#platform-notes).
+Use a distinct `--session` for each workstream. Refresh refs after state changes and preserve the exact app/window identity that produced them.
 
-`agent-desktop skills get platform` prints the full capability table for the OS you run on.
+Sessions separate snapshot namespaces. They do not give agents independent copies of an app, a browser account, or the physical desktop. Shared surfaces still need coordination, especially when using foreground input.
 
-## Language bindings
+Headless semantic actions are the default. `--headed` permits foreground activation and physical input where supported; it can interrupt the user's work. A readable offscreen window is not automatically actionable.
 
-Each release also ships `libagent_desktop_ffi` for macOS, Linux and Windows, so a program can call the tool in process instead of starting the CLI for each command. `agent-desktop skills get ffi` covers the entry points, memory ownership and threading rules.
+## Validation and boundaries
 
-```python
-import ctypes
-lib = ctypes.CDLL("./lib/libagent_desktop_ffi.dylib")
-lib.ad_adapter_create.restype = ctypes.c_void_p
-lib.ad_adapter_destroy.argtypes = [ctypes.c_void_p]
-assert lib.ad_init(6) == 0  # AD_RESULT_OK when the header's AD_ABI_VERSION_MAJOR matches the library
-adapter = lib.ad_adapter_create()
-lib.ad_adapter_destroy(adapter)
-```
+The fork's macOS validation includes **2,528 host library tests**, source rules, architecture boundaries, formatting, and Clippy. The release validation file states which build and smoke checks completed. The test badge represents local checks, not hosted CI or a guarantee of unattended operation.
 
-## Development
+The original patch also passed exact-window fixture checks before publication. Known limits remain:
 
-Each platform adapter builds only on its own OS, so scope cargo to the host's packages. On macOS:
+| Limit | Practical effect |
+| --- | --- |
+| An app exposes no usable accessibility tree | The CLI cannot manufacture native controls. |
+| Permissions or identity are unavailable | The operation can fail or return incomplete evidence. |
+| Browser pages change during observation | Refs and visible state can become stale. |
+| A window is on another Space or occluded | Foreground actions may need operator attention. |
+| Several agents operate one surface | Session separation alone does not prevent conflicting actions. |
 
-```bash
-HOST_PKGS=(-p agent-desktop-core -p agent-desktop-macos -p agent-desktop -p agent-desktop-ffi)
-cargo test "${HOST_PKGS[@]}"
-cargo clippy "${HOST_PKGS[@]}" --all-targets -- -D warnings
-```
+Desktop trees, screenshots, clipboard data, and logs can contain private content. Keep raw artifacts out of public reports and source control.
 
-On Windows, replace `agent-desktop-macos` in that list with `agent-desktop-windows`; on Linux, with `agent-desktop-linux`.
-[CONTRIBUTING.md](CONTRIBUTING.md) lists every gate. Build from source: [docs/install.md](docs/install.md#from-source).
+## C interface and upstream documentation
 
-## Documentation
+The upstream C interface remains available. The ABI major is 6; consumers should check the installed library against the header's `AD_ABI_VERSION_MAJOR`. See the [FFI skill](skills/agent-desktop-ffi/SKILL.md) and [generated header](crates/ffi/include/agent_desktop.h).
 
-| I want to... | Read |
-|---|---|
-| Fix an install problem, grant permissions, verify a download or build from source | [docs/install.md](docs/install.md) |
-| Parse the JSON envelope, error codes and exit codes | [docs/json-output.md](docs/json-output.md) |
-| Drive the tool as an AI agent | `agent-desktop skills get desktop` ([skills/agent-desktop/](skills/agent-desktop/)) |
-| Learn what differs on one OS | [macOS](skills/agent-desktop-macos/), [Windows](skills/agent-desktop-windows/), [Linux](skills/agent-desktop-linux/) |
-| Call the C library | [skills/agent-desktop-ffi/](skills/agent-desktop-ffi/) |
-| Look up the vocabulary: refs, snapshots, sessions | [CONCEPTS.md](CONCEPTS.md) |
-| Contribute and pass the gates | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Read the engineering rules | [AGENTS.md](AGENTS.md) |
-| Learn from past bugs and lessons | [docs/solutions/](docs/solutions/) |
-| Find answers to common questions | [docs/faq.md](docs/faq.md) |
-| Report a vulnerability | [SECURITY.md](SECURITY.md) |
-| Get help | [SUPPORT.md](SUPPORT.md) |
+- [Command and JSON contract](docs/json-output.md)
+- [Upstream installation and permissions reference](docs/install.md)
+- [Concepts and terminology](CONCEPTS.md)
+- [Contributing](CONTRIBUTING.md)
+- [Fork provenance](FORK.md)
+- [Shared Call Desk](https://github.com/joewilsonai/shared-call-desk)
+- [Upstream Vercel Labs repository](https://github.com/vercel-labs/agent-desktop)
 
-## License
+## License and credit
 
-Apache-2.0
+Apache License 2.0. The upstream implementation is by Vercel Labs and its contributors. This separate Call Desk distribution adds the documented macOS window repairs and keeps the original project history and license. It is not an official Vercel release or a Google-supported product.
