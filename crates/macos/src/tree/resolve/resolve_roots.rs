@@ -1,3 +1,4 @@
+//! Modified by Joe Wilson for Call Desk: macOS window discovery and strict native-ID targeting.
 use agent_desktop_core::{AdapterError, RefEntry, SnapshotSurface};
 
 use super::resolve_read_context::ResolveReadContext;
@@ -166,7 +167,7 @@ fn source_window_scoped_roots(
             deadline,
         )?;
     }
-    let windows = read_root_array(application, "AXWindows", context)?.unwrap_or_default();
+    let windows = crate::tree::application_windows::read(application, deadline)?;
     let window = if entry.source.source_window_id.is_some() {
         window_by_number(&windows, entry, context)?
     } else {

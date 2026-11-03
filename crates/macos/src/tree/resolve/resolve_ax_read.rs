@@ -1,3 +1,4 @@
+//! Modified by Joe Wilson for Call Desk: macOS window discovery and strict native-ID targeting.
 use agent_desktop_core::{AdapterError, ErrorCode};
 
 use crate::tree::AXElement;
@@ -36,15 +37,6 @@ pub(crate) fn read_string(
     deadline: std::time::Instant,
 ) -> Result<Option<String>, AdapterError> {
     crate::tree::surface_read::string(element, attribute, deadline)
-}
-
-pub(crate) fn read_array(
-    element: &AXElement,
-    attribute: &str,
-    deadline: std::time::Instant,
-) -> Result<Option<Vec<AXElement>>, AdapterError> {
-    crate::tree::surface_read::elements(element, attribute, deadline)
-        .map(|elements| (!elements.is_empty()).then_some(elements))
 }
 
 #[cfg(target_os = "macos")]

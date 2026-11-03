@@ -1,4 +1,6 @@
+//! Modified by Joe Wilson for Call Desk: macOS window discovery and strict native-ID targeting.
 mod adapter;
+pub(crate) mod application_windows;
 pub(crate) mod ax_element;
 pub(crate) mod build_context;
 pub(crate) mod child_labels;

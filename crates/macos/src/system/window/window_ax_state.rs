@@ -1,3 +1,4 @@
+//! Modified by Joe Wilson for Call Desk: macOS window discovery and strict native-ID targeting.
 use agent_desktop_core::{AdapterError, ErrorCode, WindowInfo};
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::time::Instant;
@@ -62,7 +63,7 @@ fn for_each_window(
     mut visit: impl FnMut(&crate::tree::AXElement, i64) -> Result<(), AdapterError>,
 ) -> Result<(), AdapterError> {
     let app = crate::tree::element_for_pid(pid);
-    for window in crate::tree::surface_read::elements(&app, "AXWindows", deadline)? {
+    for window in crate::tree::application_windows::read(&app, deadline)? {
         match crate::system::window::window_resolve::ax_window_id_with_deadline(&window, deadline) {
             Ok(Some(id)) => visit(&window, id)?,
             Ok(None) => {}

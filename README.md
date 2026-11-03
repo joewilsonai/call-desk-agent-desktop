@@ -1,3 +1,5 @@
+> **Call Desk fork:** this repository carries Joe Wilson's macOS window-discovery and exact-window identity fixes on a pinned upstream revision. See [fork installation and provenance](FORK.md). The npm package and standard upstream releases do not identify this fork build. Upstream project credit and the Apache-2.0 license are retained.
+
 # agent-desktop
 
 Computer use for AI agents: read and operate desktop apps through the OS accessibility tree.
