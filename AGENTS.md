@@ -7,6 +7,15 @@ accessibility trees and returns structured JSON with ref-based element ids. The 
 calling agent. It never embeds an LLM and has no GUI or interactive prompt. It does not automate web pages (use
 agent-browser). It cannot see UIs that expose no accessibility tree.
 
+## Critical: fixes must be application-agnostic
+
+Every fix must work through the platform's shared accessibility and lifecycle contracts across applications.
+Never add app-specific branches keyed by app names, bundle IDs, executables, window titles, or a known app's UI layout.
+Use observed capabilities, roles, ownership, and process identity in the shared platform adapter. Preserve safe failure
+when the platform cannot establish the required identity or capability. Verify changed behavior against multiple real
+apps and relevant UI toolkits; one app passing does not establish platform-wide correctness. App-specific names belong
+in examples and verification scenarios, never in runtime special cases.
+
 ## Commands
 
 Each platform adapter compiles only on its own OS and the workspace names all three, so an unscoped `cargo build`,
@@ -91,7 +100,7 @@ crates/windows/  agent-desktop-windows: UI Automation
 crates/linux/    agent-desktop-linux: AT-SPI
 crates/ffi/      agent-desktop-ffi: cdylib and the committed C header include/agent_desktop.h
 src/             agent-desktop binary: cli/, cli_args/, dispatch/, batch/, command_policy/,
-                 diagnostic/, visual_debug/
+                 diagnostic/, visual_debug/, mcp/
 skills/          agent skills, compiled into the binary
 tests/           golden fixtures, E2E harness per OS, FFI smoke tests
 probes/          raw platform measurements; FINDINGS.md rows are citable evidence
@@ -116,6 +125,12 @@ apps/docs/       Geistdocs site served at agent-browser.dev/desktop as a Vercel 
 **Dispatch.** `dispatch()` in `src/dispatch/mod.rs` is a direct `match` that calls each command's `execute()` in
 `crates/core/src/commands/`. There is no command trait or registry. Batch is not a second dispatcher: it deserializes
 JSON entries into the same `Commands` enum, runs the same `CommandPolicy` preflight and calls the same `dispatch()`.
+
+**MCP.** `agent-desktop mcp` (`src/mcp/`) is not a second command surface. It reads the clap command tree at runtime:
+each leaf command is one tool, its schema comes from the command's clap arguments and help, and a call rebuilds the
+argv and runs this binary as a child process. A command added to or removed from `Commands` appears in or disappears
+from the MCP tool list with no MCP change. `mcp` itself is attached to the root command in `main.rs`, outside
+`Commands`, so it is never a tool, a batch entry or a counted command.
 
 **Adding a command.**
 1. Create `crates/core/src/commands/<name>.rs` with an `execute()` function, its tests in `<name>_tests.rs`, and
@@ -203,6 +218,7 @@ Every command prints one envelope. `docs/json-output.md` holds the full contract
 ```
 
 - Omit `None` fields and empty arrays. Compact mode omits bounds. `ref_count` and `tree` live inside `data`.
+- Snapshot `data.window` is present for window-owned surfaces. macOS `menu` and `menubar` snapshots are application-owned and omit it.
 - Every snapshot carries `data.complete`. A snapshot that runs out of observation budget succeeds with
   `"complete": false`, `"truncated": true`, `"nodes_observed"` and the tree it saw; each cut node carries
   `"subtree_truncated": true`. A `--root` drill-down returns `TIMEOUT` instead of a partial tree.

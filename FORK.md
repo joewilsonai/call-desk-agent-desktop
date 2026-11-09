@@ -4,7 +4,7 @@ This fork of [Vercel Labs agent-desktop](https://github.com/vercel-labs/agent-de
 
 Original patch base: `5261b5287b5208e7c4bf3713df6f66faaaf2c4cc`.
 
-Current source incorporates upstream `31b757a990a1189c9df8128df10e8df2ee5e15e1`. The published `call-desk-macos-2026-11-02` release remains pinned to its original source and artifacts. It is not replaced by a source synchronization.
+Current source incorporates upstream `b43ac4f6e892ef608f8851428613c4009f0e84c7` (release 1.2.0). The published `call-desk-macos-2026-11-02` release remains pinned to its original source and artifacts. It is not replaced by a source synchronization.
 
 Upstream synchronization merges retain upstream ancestry so later updates have the correct merge base. Feature contributions to upstream continue to use focused branches and its linear-history workflow.
 
@@ -45,6 +45,6 @@ This fork does not change Call Desk's message receipts, Google Voice service beh
 
 ## Source migration boundary
 
-Current `main` removes the legacy macOS command host, adopts cross-process element tokens, and adds Dock, menu bar extras and process-owned system surfaces. It uses JSON envelope 2.6 and C ABI 7. Consumers must tolerate absent `data.window` for windowless observations while retaining explicit native-window checks for enrolled windows. Retake snapshots after an implementation upgrade.
+Current `main` removes the legacy macOS command host, adopts cross-process element tokens, and adds Dock, menu bar extras and process-owned system surfaces, plus the 1.2.0 MCP server, `--stdin` text input and native menu resolution. It uses JSON envelope 2.6 and C ABI 7. Consumers must tolerate absent `data.window` for windowless observations while retaining explicit native-window checks for enrolled windows. Retake snapshots after an implementation upgrade.
 
 The new CLI stops matching legacy command hosts during startup, including version queries. Do not execute it incidentally while another agent depends on the older host. Building and merging source does not install that binary. New release artifacts and the Call Desk installation pin require separate live qualification.

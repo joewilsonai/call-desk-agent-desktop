@@ -11,7 +11,7 @@
   <a href="LICENSE"><img alt="Apache 2.0 license" src="https://img.shields.io/badge/license-Apache_2.0-238636?style=flat-square" /></a>
   <img alt="macOS ARM64 tested" src="https://img.shields.io/badge/fork_target-macOS_ARM64-111827?style=flat-square" />
   <img alt="2528 host library tests passed for the pinned release" src="https://img.shields.io/badge/pinned_release_tests-2528_passed-238636?style=flat-square" />
-  <img alt="Upstream main synchronized at 31b757a9" src="https://img.shields.io/badge/upstream_main-31b757a9-1f6feb?style=flat-square" />
+  <img alt="Upstream main synchronized at b43ac4f6" src="https://img.shields.io/badge/upstream_main-b43ac4f6-1f6feb?style=flat-square" />
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 
 **This is Joe Wilson's Call Desk source fork of [Vercel Labs' agent-desktop](https://github.com/vercel-labs/agent-desktop).** It adds the macOS window-discovery and exact-window identity repairs used by [Shared Call Desk](https://github.com/joewilsonai/shared-call-desk). Upstream authorship, history, and the [Apache-2.0 license](LICENSE) are preserved.
 
-Source on `main` incorporates upstream commit [`31b757a9`](https://github.com/vercel-labs/agent-desktop/commit/31b757a990a1189c9df8128df10e8df2ee5e15e1) and retains our window repairs. The installation examples remain pinned to the earlier `call-desk-macos-2026-11-02` release; updating source does not upgrade an installed tool. The exact source revision identifies each build. The upstream npm package and a matching CLI version string do not establish that these modifications are installed.
+Source on `main` incorporates upstream commit [`b43ac4f6`](https://github.com/vercel-labs/agent-desktop/commit/b43ac4f6e892ef608f8851428613c4009f0e84c7) (upstream 1.2.0) and retains our window repairs. The installation examples remain pinned to the earlier `call-desk-macos-2026-11-02` release; updating source does not upgrade an installed tool. The exact source revision identifies each build. The upstream npm package and a matching CLI version string do not establish that these modifications are installed.
 
 ## Why this fork exists
 
@@ -47,7 +47,7 @@ See [fork provenance and installation](FORK.md) for the exact base, changes, and
 
 ## Upstream changes on main
 
-The synchronized source adds cross-process accessibility tokens for exact element re-identification and removes the old macOS background command host. It also supports the Dock, menu bar status items, windowless apps, and system panels such as Control Center. These changes come from upstream; the fork retains its native-window discovery and exact-ID repairs.
+The synchronized source adds cross-process accessibility tokens for exact element re-identification and removes the old macOS background command host. It also supports the Dock, menu bar status items, windowless apps, and system panels such as Control Center. Upstream 1.2.0 also adds `agent-desktop mcp` (every command as an MCP tool over stdio), `--stdin` for `type`, `set-value` and `clipboard-set`, native menu resolution with verified lifecycle transitions, partial snapshots that survive an expired observation, and a libproc process inventory in place of spawning `ps`. These changes come from upstream; the fork retains its native-window discovery and exact-ID repairs.
 
 A windowless snapshot or system-surface result can omit `data.window`. Consumers must check for it, and a process root must not substitute for an explicitly enrolled native window. The JSON envelope is 2.6. Take fresh snapshots when moving to this implementation.
 
