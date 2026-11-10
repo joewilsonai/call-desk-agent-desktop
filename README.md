@@ -93,7 +93,9 @@ env -u AGENT_DESKTOP_HOME cargo build --release --locked \
 
 Keep `agent-desktop-macos-helper` beside `agent-desktop` when installing the macOS binaries. Preserve an existing installation before changing command resolution. The [Call Desk dependency guide](https://github.com/joewilsonai/shared-call-desk/blob/main/third_party/agent-desktop/README.md) provides the versioned-directory and backup procedure.
 
-For a published archive, use the [fork's releases](https://github.com/joewilsonai/call-desk-agent-desktop/releases) and the validation/checksum files attached to that specific release. Available assets determine the supported download targets.
+For a published archive, use the [`call-desk-macos-2026-11-02` pre-release](https://github.com/joewilsonai/call-desk-agent-desktop/releases/tag/call-desk-macos-2026-11-02). It carries one macOS ARM64 archive with its `SHA256SUMS` and `BUILD-VALIDATION.json`.
+
+The releases page also lists `v1.2.0`, marked Latest. The release workflow inherited from upstream built it automatically from `main` when the upstream 1.2.0 merge landed, for every upstream target. It has no fork release notes and has not been qualified for Call Desk. It is not the build Call Desk pins.
 
 ### Inspect permissions
 
